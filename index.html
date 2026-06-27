@@ -1,76 +1,98 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Перенаправление в IntraDesk</title>
+    <title>Переход в IntraDesk...</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            text-align: center;
-            margin-top: 15vh;
+            background-color: #f8f9fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
             color: #333;
         }
-        .loader {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #3498db;
+        .container {
+            text-align: center;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            max-width: 400px;
+            width: 90%;
+        }
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
-            width: 30px;
-            height: 30px;
+            border-left-color: #09f;
             animation: spin 1s linear infinite;
-            margin: 20px auto;
+            margin: 0 auto 20px auto;
         }
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-        a { color: #0066cc; text-decoration: none; font-weight: bold; }
-        a:hover { text-decoration: underline; }
-        .error { color: red; font-weight: bold; }
+        h1 {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+        p {
+            font-size: 0.9rem;
+            color: #666;
+            line-height: 1.5;
+        }
+        a {
+            color: #007bff;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
     </style>
+    <script>
+        function openApp() {
+            // Считываем ID задачи из URL-параметров (?id=20277). Если параметра нет, ставим 20277 по умолчанию.
+            const urlParams = new URLSearchParams(window.location.search);
+            const taskId = urlParams.get('id') || '20277';
+            
+            // Формируем ссылки
+            const androidIntent = `intent://spar.intradesk.ru/task/list/${taskId}#Intent;scheme=https;package=ru.intravision.intradesk;end`;
+            const fallbackUrl = `https://spar.intradesk.ru/task/list/{taskId}`;
+
+            // Обновляем резервную ссылку на странице для ручного клика
+            const fallbackLink = document.getElementById('fallback-link');
+            if (fallbackLink) {
+                fallbackLink.href = fallbackUrl;
+            }
+
+            // Логика перенаправления
+            if (/Android/i.test(navigator.userAgent)) {
+                window.location.href = androidIntent;
+                
+                // Если приложение не установлено, через 2.5 секунды откроется веб-версия
+                setTimeout(() => {
+                    window.location.href = fallbackUrl;
+                }, 2500);
+            } else {
+                // Для iOS и ПК сразу открываем веб-версию
+                window.location.href = fallbackUrl;
+            }
+        }
+        window.onload = openApp;
+    </script>
 </head>
 <body>
-
-    <h2>Перенаправление в приложение IntraDesk...</h2>
-    <div class="loader" id="loader"></div>
-    <p>Если переход не произошел автоматически, <a href="https://intradesk.ru" id="fallback-link">нажмите сюда</a>.</p>
-    <p class="error" id="error-msg" style="display:none;"></p>
-
-    <script>
-        // 1. Получаем параметр id из URL (например, ?id=12345)
-        const urlParams = new URLSearchParams(window.location.search);
-        const taskId = urlParams.get('id');
-
-        const errorMsg = document.getElementById('error-msg');
-        const loader = document.getElementById('loader');
-
-        if (taskId) {
-            // 2. Формируем Deep Link (URI-схему приложения)
-            // ВНИМАНИЕ: Замените 'intradesk' на реальную схему, зарегистрированную в вашем мобильном приложении.
-            // Примеры: intradesk://task/12345, intradesk://open?id=12345
-            const appScheme = `intradesk://task/${taskId}`; 
-            
-            // 3. Пытаемся открыть приложение
-            window.location.href = appScheme;
-
-            // 4. Обработка фоллбэка (если приложение не установлено)
-            // Браузеры не дают прямого события "приложение не открылось", поэтому используем таймер.
-            // Если через 2 секунды пользователь всё еще на этой странице (приложение не перехватило ссылку),
-            // мы скрываем лоадер и предлагаем альтернативные действия.
-            setTimeout(() => {
-                loader.style.display = 'none';
-                document.querySelector('h2').innerText = 'Приложение не найдено';
-                // Можно также редиректить в сторы или на лендинг:
-                // window.location.href = 'https://intradesk.ru/download'; 
-            }, 2000);
-
-        } else {
-            // Если id не передан в ссылке
-            loader.style.display = 'none';
-            errorMsg.style.display = 'block';
-            errorMsg.innerText = 'Ошибка: ID задачи не указан в ссылке.';
-        }
-    </script>
+    <div class="container">
+        <div class="spinner"></div>
+        <h1>Перенаправление в IntraDesk...</h1>
+        <p>Мы пытаемся открыть задачу в мобильном приложении.</p>
+        <p>Если переход не произошел автоматически, <a id="fallback-link" href="https://intradesk.ru">нажмите сюда для перехода в браузерную версию</a>.</p>
+    </div>
 </body>
 </html>
-
