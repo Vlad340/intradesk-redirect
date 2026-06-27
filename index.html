@@ -66,7 +66,7 @@
             
             // Собираем итоговые ссылки
             const androidIntent = `intent://spar.intradesk.ru/task/list/${pathSuffix}#Intent;scheme=https;package=ru.intravision.intradesk;end`;
-            const fallbackUrl = `https://intradesk.ru{pathSuffix}`;
+            const fallbackUrl = `https://spar.intradesk.ru/task/list/${pathSuffix}`;
 
             // Обновляем резервную ссылку на странице для ручного клика
             const fallbackLink = document.getElementById('fallback-link');
